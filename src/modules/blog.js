@@ -5,21 +5,24 @@ const instance = axios.create({
 	baseURL: 'https://jsonplaceholder.typicode.com',
 })
 
-const FETCH_POSTS = 'user/FETCH_POSTS'
-const FETCH_POST = 'user/FETCH_POST'
+const CHANGE_PAGE = 'post/CHANGE_PAGE'
+const FETCH_POSTS = 'post/FETCH_POSTS'
+const FETCH_POST = 'post/FETCH_POST'
 
 const initialState = {
+	page: 0,
 	posts: [],
 	post: null,
 }
 
+export const changePage = createAction(CHANGE_PAGE, mount => mount)
 const fetchPosts = createAction(FETCH_POSTS, posts => posts)
 const fetchPost = createAction(FETCH_POST, post => post)
 
-export const asyncFetchPosts = start => dispatch =>
+export const asyncFetchPosts = () => (dispatch, getState) =>
 	instance
-		.get(`/posts?_start=${start}&_limit=10`)
-		.then(({ data: posts }) => dispatch(fetchPosts(posts)))
+		.get(`/posts?_start=${getState().blog.page}&_limit=10`)
+		.then(({ data }) => dispatch(fetchPosts(data)))
 
 export const asyncFetchPost = id => dispatch =>
 	Promise.all([
@@ -33,6 +36,10 @@ export const asyncFetchPost = id => dispatch =>
 
 export default handleActions(
 	{
+		[CHANGE_PAGE]: (state, { payload: mount }) => ({
+			...state,
+			page: state.page + mount,
+		}),
 		[FETCH_POSTS]: (state, { payload: posts }) => ({
 			...state,
 			posts,

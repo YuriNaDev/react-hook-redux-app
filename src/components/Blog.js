@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { asyncFetchPosts, asyncFetchPost } from '../modules/blog'
+import { changePage, asyncFetchPosts, asyncFetchPost } from '../modules/blog'
 
 const Posts = () => {
 	const posts = useSelector(state => state.blog.posts, [])
@@ -52,27 +52,26 @@ const Post = () => {
 }
 
 const Blog = () => {
-	const [start, setStart] = useState(0)
-
+	const page = useSelector(state => state.blog.page, [])
 	const dispatch = useDispatch()
 
 	const goPrev = useCallback(() => {
-		setStart(start => start - 1)
-	}, [])
+		dispatch(changePage(-1))
+	}, [dispatch])
 
 	const goNext = useCallback(() => {
-		setStart(start => start + 1)
-	}, [])
+		dispatch(changePage(1))
+	}, [dispatch])
 
 	useEffect(() => {
-		dispatch(asyncFetchPosts(start))
-	}, [dispatch, start])
+		dispatch(asyncFetchPosts())
+	}, [dispatch, page])
 
 	return (
 		<div>
 			<h1>Blog</h1>
 			<div>
-				<button onClick={goPrev} disabled={start === 0}>
+				<button onClick={goPrev} disabled={page === 0}>
 					prev
 				</button>
 				<button onClick={goNext}>next</button>
